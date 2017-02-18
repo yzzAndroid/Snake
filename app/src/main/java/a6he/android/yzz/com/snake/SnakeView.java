@@ -53,6 +53,7 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
     public static final int LEFT = 3;
     public static final int RIGHT = 4;
     private boolean isChange = false;
+    private int mSize;
 
     public SnakeView(Context context) {
         super(context);
@@ -104,6 +105,7 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
         listBiaoqing.add(BitmapFactory.decodeResource(getResources(), R.mipmap.dji));
         listBiaoqing.add(BitmapFactory.decodeResource(getResources(), R.mipmap.djl));
         listBiaoqing.add(BitmapFactory.decodeResource(getResources(), R.mipmap.djm));
+        mSize = listBiaoqing.get(0).getHeight();
         myRandom = new Random();
         mFood = new Food();
         mRect = new Rect(0, 0, getWidth(), getHeight());
@@ -147,18 +149,18 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
         switch (mState) {
             case UP:
                 last.setX(first.getX());
-                last.setY(first.getY() - 56);
+                last.setY(first.getY() - mSize);
                 break;
             case DOWN:
                 last.setX(first.getX());
-                last.setY(first.getY() + 56);
+                last.setY(first.getY() + mSize);
                 break;
             case LEFT:
-                last.setX(first.getX() - 56);
+                last.setX(first.getX() - mSize);
                 last.setY(first.getY());
                 break;
             case RIGHT:
-                last.setX(first.getX() + 56);
+                last.setX(first.getX() + mSize);
                 last.setY(first.getY());
                 break;
         }
@@ -181,8 +183,8 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
         Point user = mUser.mUserList.getFirst();
         float x = Math.abs(user.getX() - mFood.mFoodPoint.getX());
         float y = Math.abs(user.getY() - mFood.mFoodPoint.getY());
-        if (x <= 56 && x >= 0) {
-            if (y <= 56 && y >= 0) {
+        if (x <= mSize && x >= 0) {
+            if (y <= mSize && y >= 0) {
                 //吃了
                 mUser.mUserIcon.addLast(listBiaoqing.get(myRandom.nextInt(listBiaoqing.size())));
                 Point p = mUser.mUserList.getLast();
@@ -190,19 +192,19 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
                 switch (mState) {
                     case UP:
                         now.setX(p.getX());
-                        now.setY(p.getY() + 56);
+                        now.setY(p.getY() + mSize);
                         break;
                     case DOWN:
                         now.setX(p.getX());
-                        now.setY(p.getY() - 56);
+                        now.setY(p.getY() - mSize);
                         break;
                     case LEFT:
-                        now.setX(p.getX() + 56);
+                        now.setX(p.getX() + mSize);
                         now.setY(p.getY());
                         break;
                     case RIGHT:
                         now.setX(p.getX());
-                        now.setY(p.getY() - 56);
+                        now.setY(p.getY() - mSize);
                         break;
                 }
                 mUser.mUserList.addLast(now);
@@ -282,7 +284,7 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
         //食物的坐标位置
         private Point mFoodPoint;
         private Random mRandom;
-        public static final int size = 56;
+        public  final int size = mSize;
         private Bitmap mIcon;
 
         public Food() {
@@ -312,14 +314,14 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
             mUserList = new LinkedList<>();
             mUserIcon = new LinkedList<>();
             Bitmap b = listBiaoqing.get(myRandom.nextInt(listBiaoqing.size()));
-            Point point = new Point(56, 56);
+            Point point = new Point(mSize, mSize);
             mUserList.addFirst(point);
             mUserIcon.addFirst(b);
         }
 
         public void drawUserPoint() {
             for (int i = 0; i < mUserList.size(); i++) {
-                Bitmap bb = Bitmap.createScaledBitmap(mUserIcon.get(i), mUserIcon.get(i).getWidth() - i, mUserIcon.get(i).getHeight() - i, true);
+                Bitmap bb = Bitmap.createScaledBitmap(mUserIcon.get(i), mUserIcon.get(i).getWidth() , mUserIcon.get(i).getHeight() , true);
                 Point p = mUserList.get(i);
                 mCanvas.drawBitmap(bb, p.getX(), p.getY(), mPaint);
             }
@@ -327,7 +329,7 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
 
         public void reSet() {
             Bitmap b = listBiaoqing.get(myRandom.nextInt(listBiaoqing.size()));
-            Point point = new Point(56, 56);
+            Point point = new Point(mSize, mSize);
             mUserList.addFirst(point);
             mUserIcon.addFirst(b);
         }
@@ -336,11 +338,11 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
     public boolean check() {
         //是否撞到墙
         Point p = mUser.mUserList.getFirst();
-        if (p.getX() < 0 || p.getX() > mBg.getWidth() - 56) {
+        if (p.getX() < 0 || p.getX() > mBg.getWidth() - mSize) {
             //撞墙
             return true;
         }
-        if (p.getY() < 0 || p.getY() > mBg.getHeight() - 56) {
+        if (p.getY() < 0 || p.getY() > mBg.getHeight() - mSize) {
             //撞墙
             return true;
         }
@@ -352,8 +354,8 @@ public class SnakeView extends SurfaceView implements SurfaceHolder.Callback, Ru
             Point point = mUser.mUserList.get(i);
             float x = Math.abs(point.getX() - p.getX());
             float y = Math.abs(point.getY() - p.getY());
-            if (x < 56 ) {
-                if (y < 56) {
+            if (x < mSize ) {
+                if (y < mSize) {
                     //
                     Log.e("==========","======="+x+"==="+y);
                     return true;
